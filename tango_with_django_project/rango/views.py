@@ -14,6 +14,7 @@ def show_category(request, category_name_slug):
         context_dict['pages'] = None
         context_dict['category'] = None
     return render(request, 'rango/category.html', context_dict)
+
 def index(request):
     category_list = Category.objects.order_by('-likes')[:5]
     context_dict = {'categories': category_list}
@@ -21,3 +22,13 @@ def index(request):
 
 def about(request):
     return render(request, 'rango/about.html')
+
+def add_category(request):
+    form = CategoryForm()
+
+    if request.method == 'POST':
+        form.save(commit=True)
+        return index(request)
+    else:
+        print(form.errors)
+    return render(request, 'rango/add_category.html', {'form': form})
