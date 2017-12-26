@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rango',
+    'registration',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -130,3 +131,11 @@ MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [STATIC_DIR,]
 
+#Non-authenticated users redirect:
+LOGIN_URL = '/accounts/login/'
+
+#Djanog Registration Redux Config
+REGISTRATION_OPEN = True
+ACCOUNT_ACTIVATION_DAYS = 7
+REGISTRATION_AUTO_LOGIN = True
+LOGIN_REDIRECT_URL = '/rango/'
