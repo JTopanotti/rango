@@ -6,3 +6,4 @@ lib64
 pip-selfcheck.json
 db.sqlite3
 *.pyc
+search.key
