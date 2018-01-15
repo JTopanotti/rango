@@ -1,12 +1,16 @@
 import json
 import urllib.parse
 import urllib.request
+from os.path import isfile
 
 def read_webhose_key():
     #Reads Webhose API from file 'search.key'
     #Put file in .gitignore so won`t be commited ;)
 
     webhose_api_key = None
+    webnose_key_path = "search.key"
+    if not isfile(webnose_key_path):
+        webnose_key_path = "../" + webnose_key_path
 
     try:
         with open('search.key', 'r') as file:
@@ -45,3 +49,16 @@ def run_query(search_terms, size=10):
         print("Error when querying the Webhose API")
 
     return results
+
+
+if __name__ == "__main__":
+    print("<-------------Webnose Query API-------------->")
+    query = input("Insert a search filter: ")
+    max_results = input("Insert a maximum number of results: ")
+    results = run_query(query, max_results)
+
+    for i, result in enumerate(results):
+        print("Result " + i + ": ")
+        print("Title: " + result['title'])
+        print("Summary: " + result['summary'] + '\n' )
+
