@@ -42,7 +42,7 @@ def populate():
 
     for c in Category.objects.all():
         for p in Page.objects.filter(category=c):
-            print"- {0} - {1}".format(str(c), str(p))
+            print("- {0} - {1}".format(str(c), str(p)))
 
 def add_page(cat, title, url, views=0):
     p = Page.objects.get_or_create(category=cat, title=title)[0]
@@ -59,5 +59,5 @@ def add_cat(name, views, likes):
     return c
 
 if __name__ == '__main__':
-    print "Starting Rango population script..."
+    print("Starting Rango population script...")
     populate()

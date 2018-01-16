@@ -8,12 +8,12 @@ def read_webhose_key():
     #Put file in .gitignore so won`t be commited ;)
 
     webhose_api_key = None
-    webnose_key_path = "search.key"
-    if not isfile(webnose_key_path):
-        webnose_key_path = "../" + webnose_key_path
+    webhose_key_path = "search.key"
+    if not isfile(webhose_key_path):
+        webnose_key_path = "../" + webhose_key_path
 
     try:
-        with open('search.key', 'r') as file:
+        with open(webhose_key_path, 'r') as file:
             webhose_api_key = file.readline().strip()
     except:
         raise IOError('search.key file not found')
@@ -52,13 +52,13 @@ def run_query(search_terms, size=10):
 
 
 if __name__ == "__main__":
-    print("<-------------Webnose Query API-------------->")
+    print("<-------------Webhose Query API-------------->")
     query = input("Insert a search filter: ")
     max_results = input("Insert a maximum number of results: ")
     results = run_query(query, max_results)
 
     for i, result in enumerate(results):
-        print("Result " + i + ": ")
+        print("Result {}: ".format(i))
         print("Title: " + result['title'])
         print("Summary: " + result['summary'] + '\n' )
 
