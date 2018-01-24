@@ -20,6 +20,17 @@ def show_category(request, category_name_slug):
     except Category.DoesNotExist:
         context_dict['pages'] = None
         context_dict['category'] = None
+
+    query = ""
+    if request.method == "POST":
+        result_list = []
+        query = request.POST["query"].strip()
+        if query:
+            result_list = run_query(query)
+
+        context_dict["result_list"] = result_list
+
+    context_dict["query"] = query
     return render(request, 'rango/category.html', context_dict)
 
 
@@ -150,16 +161,6 @@ def get_server_side_cookie(request, cookie, default_val=None):
     if not val:
         val = default_val
     return val
-
-def search(request):
-    result_list = []
-
-    if request.method == 'POST':
-        query = request.POST['query'].strip()
-        if query:
-            result_list = run_query(query)
-
-    return render(request, 'rango/search.html', {'result_list': result_list, 'query': query})
 
 
 def track_url(request):
