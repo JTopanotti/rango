@@ -1,4 +1,4 @@
-from djongo.models import forms
+from django import forms
 from .models import Page, Category, UserProfile
 from django.contrib.auth.models import User
 
