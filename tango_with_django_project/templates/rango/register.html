@@ -1,5 +1,7 @@
 {% extends 'rango/base.html' %}
 {% load staticfiles %}
+{% load bootstrap_toolkit %}
+
 
 {% block title_block %}
     Register
@@ -9,7 +11,7 @@
     <h2 class="form-signin-heading">Sign Up Here</h2>
     <form role="form" method="post" action="{% url 'register' %}">
         {% csrf_token %}
-        <div class="form-group">
+        <!--<div class="form-group">
             <p class="required"><label class="required" for="id_username">
                 Username:</label>
                 <input class="form-group" id="id_username" maxlength="30"
@@ -39,7 +41,9 @@
             <p><label for="picture">Profile picture:</label>
                 <input class="form-control" id="picture" name="picture" type="file" />
             </p>
-        </div>
+        </div> -->
+        {{ user_form|as_bootstrap }}
+        {{ profile_form|as_bootstrap }}
         <button type="submit" class="btn btn-primary btn-default">Submit</button>
     </form>
     <!--<h1>Register for Rango</h1>
