@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% load staticfiles %}
 {% load rango_template_tags %}
+
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -36,28 +37,31 @@
             <li class="nav-item">
               <a class="nav-link active" href="{% url 'index' %}">Home <span class="sr-only">(current)</span></a>
             </li>
+<!--            <li class="nav-item">-->
+<!--              <a class="nav-link" href="{% url 'about' %}">About</a>-->
+<!--            </li>-->
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'about' %}">About</a>
+              <a class="nav-link" href="{% url 'search' %}">Search</a>
             </li>
             {% if user.is_authenticated %}
 
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+              <a class="nav-link" href="{% url 'auth_logout' %}?next=/rango/">Logout</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'add_category' %}">Add a new Category</a>
             </li>
             {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">Login</a>
+              <a class="nav-link" href="{% url 'auth_login' %}">Login</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'register' %}">Register Here!</a>
+              <a class="nav-link" href="{% url 'registration_register' %}">Register Here!</a>
             </li>
             {% endif %}
           </ul>
         </nav>
-        <h3 class="text-muted">Jonathan's Rango</h3>
+        <h3 class="text-muted" style="margin-left: 15px">Rango</h3>
       </div>
       <div class="container-fluid">
           {% block body_block %}{% endblock %}

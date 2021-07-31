@@ -2,12 +2,12 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from .models import Category, Page
+from .models import Category, Page, UserProfile
 from .forms import CategoryForm, PageForm, UserForm, UserProfileForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
-from .webhose_search import run_query
+from rango.webhose_search import run_query
 
 
 def show_category(request, category_name_slug):
@@ -21,17 +21,18 @@ def show_category(request, category_name_slug):
         context_dict['pages'] = None
         context_dict['category'] = None
 
-    query = ""
-    if request.method == "POST":
-        result_list = []
-        query = request.POST["query"].strip()
+    return render(request, 'rango/category.html', context_dict)
+
+
+def search(request):
+    result_list = []
+
+    if request.method == 'POST':
+        query = request.POST['query'].strip()
         if query:
             result_list = run_query(query)
 
-        context_dict["result_list"] = result_list
-
-    context_dict["query"] = query
-    return render(request, 'rango/category.html', context_dict)
+    return render(request, 'rango/search.html', {'result_list': result_list})
 
 
 def index(request):
@@ -82,28 +83,33 @@ def add_page(request, category_name_slug):
 
 
 def register(request):
-   registered = False
-   if request.method == 'POST':
-       user_form = UserForm(data=request.POST)
-       profile_form = UserProfileForm(data=request.POST)
-       if user_form.is_valid() and profile_form.is_valid():
-           user = user_form.save()
-           user.set_password(user.password)
-           user.save()
+    registered = False
+    if request.method == 'POST':
+        user_form = UserForm(data=request.POST)
+        profile_form = UserProfileForm(data=request.POST)
+        if user_form.is_valid() and profile_form.is_valid():
+            user = user_form.save()
+            user.set_password(user.password)
+            user.save()
 
-           profile = profile_form.save(commit=False)
-           profile.user = user
-           if 'picture' in request.FILES:
-               profile.picture = request.FILES['picture']
-           profile.save()
-           registered = True
-       else:
-           print(user_form.errors, profile_form.errors)
-   else:
-       user_form = UserForm()
-       profile_form = UserProfileForm()
+            profile = profile_form.save(commit=False)
+            profile.user = user
+            if 'picture' in request.FILES:
+                profile.picture = request.FILES['picture']
+            profile.save()
+            registered = True
+        else:
+            print(user_form.errors, profile_form.errors)
+    else:
+        if request.user:
+            profile = UserProfile.objects.get(user_id=request.user.id)
+            user_form = UserForm(instance=request.user)
+            profile_form = UserProfileForm(instance=profile)
+        else:
+            user_form = UserForm()
+            profile_form = UserProfileForm()
 
-   return render(request, 'rango/register.html', {'user_form':user_form, 'profile_form':profile_form,
+    return render(request, 'rango/register.html', {'user_form': user_form, 'profile_form': profile_form,
                                                    'registered': registered})
 
 
@@ -143,7 +149,7 @@ def visitor_cookie_handler(request):
     last_visit_cookie = get_server_side_cookie(request,
                                                'last_visit',
                                                str(datetime.now())
-                                                                   )
+                                               )
     last_visit_time = datetime.strptime(last_visit_cookie[:-7],
                                         '%Y-%m-%d %H:%M:%S')
     if (datetime.now() - last_visit_time).seconds > 0:
