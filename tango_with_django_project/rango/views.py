@@ -2,9 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from .models import Category, Page, UserProfile
+from .models import Category, Page, User, UserProfile
 from .forms import CategoryForm, PageForm, UserForm, UserProfileForm
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
 from rango.webhose_search import run_query
@@ -82,66 +81,52 @@ def add_page(request, category_name_slug):
     return render(request, 'rango/add_page.html', context_dict)
 
 
-def register(request):
-    registered = False
+@login_required
+def register_profile(request):
+    form = UserProfileForm()
+
     if request.method == 'POST':
-        user_form = UserForm(data=request.POST)
-        profile_form = UserProfileForm(data=request.POST)
-        if user_form.is_valid() and profile_form.is_valid():
-            user = user_form.save()
-            user.set_password(user.password)
-            user.save()
+        form = UserProfileForm(request.POST, request.FILES)
+        if form.is_valid():
+            user_profile = form.save(commit=False)
+            user_profile.user = request.user
+            user_profile.save()
 
-            profile = profile_form.save(commit=False)
-            profile.user = user
-            if 'picture' in request.FILES:
-                profile.picture = request.FILES['picture']
-            profile.save()
-            registered = True
+            return redirect('index')
         else:
-            print(user_form.errors, profile_form.errors)
-    else:
-        if request.user:
-            profile = UserProfile.objects.get(user_id=request.user.id)
-            user_form = UserForm(instance=request.user)
-            profile_form = UserProfileForm(instance=profile)
-        else:
-            user_form = UserForm()
-            profile_form = UserProfileForm()
+            print(form.errors)
 
-    return render(request, 'rango/register.html', {'user_form': user_form, 'profile_form': profile_form,
-                                                   'registered': registered})
+    context_dict = {'form': form}
+
+    return render(request, 'rango/profile_registration.html', context_dict)
 
 
-def user_login(request):
+@login_required
+def profile(request, username):
+    try:
+        user = User.objects.get(username=username)
+    except:
+        return redirect('index')
+
+    userprofile = UserProfile.objects.get_or_create(user=user)[0]
+    form = UserProfileForm(instance=userprofile)
+
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(username=username, password=password)
-
-        if user:
-            print('Username:' + username, 'Senha:' + password)
-            if user.is_active:
-                login(request, user)
-                return HttpResponseRedirect(reverse('index'))
+        if user == request.user:
+            form = UserProfileForm(request.POST, request.FILES, instance=userprofile)
+            if form.is_valid():
+                form.save(commit=True)
+                return redirect('profile', user.username)
             else:
-                return HttpResponse('Your Rango account is disabled!')
-        else:
-            print("Invalid login credential: {0}, {1}".format(username, password))
-            return HttpResponse('Invalid login credentials!')
-    else:
-        return render(request, 'rango/login.html', {})
+                print(form.errors)
+
+    return render(request, 'rango/profile.html', {'userprofile': userprofile, 'selecteduser': user, 'form': form})
+
 
 
 @login_required
 def restricted(request):
     return HttpResponse("Since you`re logged in, you can see this text!")
-
-
-@login_required
-def user_logout(request):
-    logout(request)
-    return HttpResponseRedirect(reverse('index'))
 
 
 def visitor_cookie_handler(request):
